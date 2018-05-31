@@ -3,7 +3,7 @@ import pymongo
 from pymongo import MongoClient
 
 app = Flask("Web App Sensor")
-client = MongoClient('localhost', 27017)
+client = MongoClient('localhost', 27017, username='refri', password='******')
 db = client.dbSensor2
 data = db.sensor
 data_sensor = data.find()

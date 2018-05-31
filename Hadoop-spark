@@ -1,0 +1,49 @@
+from bson.json_util import dumps, loads
+import json, time
+from pyspark.sql import SQLContext
+from pyspark.sql import SparkSession
+from pyspark import SparkContext
+from pymongo import MongoClient
+
+sc =SparkContext(appName = "lalalulu")
+
+while True:
+        #--------------read file data.json---------------
+        sqlContext = SQLContext(sc)
+        mongoClient = MongoClient ('192.168.43.234:27018', username='refri', password='1781945~', authSource='skt_db')
+        db = mongoClient.skt_db
+        col_raw_data = db.raw_data
+        col_avg_common = db.avg_common
+        details = col_raw_data.find()
+
+        df_dtb = []
+        for item in details:
+                temp = [{'humidity' : item[u'humidity'], 'temperature' : item[u'temperature'], 'Moisture' :  item[u'Moisture']}]
+                df_dtb.append(temp)
+
+        #---------------ubah menjadi DataFrame-----------
+        df_dtb2 = [json.dumps(item) for item in df_dtb]
+        df = sqlContext.read.json(sc.parallelize(df_dtb2))
+
+        #--------------diubah agar bisa dioperasikan seperti SQL------------
+        spark = SparkSession \
+                .builder \
+                .appName("Pyspark") \
+                .config("spark.mongodb.input.uri", "mongodb://192.168.43.34:27018/skt_db") \
+                .config("spark.mongodb.output.uri", "mongodb://192.168.43.34:27018/skt_db") \
+                .getOrCreate()
+
+        df.createOrReplaceTempView("skt_db")
+        avg_common = spark.sql("SELECT CAST(AVG(humidity) AS decimal(4,2)) as Rata_Humidity, CAST(AVG(temperature) AS decimal (4,2)) as Rata_Temperature, CAST(AVG(Moisture) AS decimal(4,2)) as Rata_Moisture FROM skt_db")
+        #avg_common.show()
+
+        #----------------------save file to hadoop--------------------
+        avg_common.write.mode("overwrite").json("hdfs://node1/rata_common.json")
+
+        #----------------------read file from hadoop------------------
+        rata_common = sqlContext.read.json("hdfs://node1/rata_common.json")
+        rata_common.show()
+        test = rata_common.toJSON()
+        col_avg_common.insert_one(test)
+
+        time.sleep(60)

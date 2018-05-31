@@ -1,0 +1,129 @@
+#include <ESP8266WiFi.h> 
+#include <PubSubClient.h> 
+#include "DHT.h" 
+#define Photoresistor A0
+#define Moisture_soil D0
+
+const char* ssid = "fler"; 
+const char* password = "eskatesukses"; 
+const char* mqtt_server = "broker.hivemq.com";
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+
+#define DHTPIN 5  //D1
+#define DHTTYPE DHT11   // DHT 11 
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup_wifi() {
+  delay(100);
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  randomSeed(micros());
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+void reconnect() {
+  while (!client.connected())
+  {
+    Serial.print("Mencoba untuk koneksi k MQTT...");
+    String clientId = "ESP8266Client-";
+    clientId += String(random(0xffff), HEX);
+    //   if (client.connect(clientId,userName,passWord))
+    if (client.connect(clientId.c_str()))
+    {
+      Serial.println("connected");
+    }
+    else {
+      Serial.print("gagal, rc=");
+      Serial.print(client.state());
+      Serial.println(" mencoba dalam 5 detik");
+
+      delay(6000);
+    }
+  }
+} 
+
+void setup() {
+  Serial.begin(115200); 
+  setup_wifi(); 
+  client.setServer(mqtt_server, 1883);
+  Serial.println("DHT11 | LDR Sensor | Moisture Sensor"); 
+  dht.begin();
+
+}
+
+double Light (int RawADC0)
+{
+  double Vout=RawADC0*0.0048828125;
+  //int lux=500/(10*((5-Vout)/Vout));//use this equation if the LDR is in the upper part of the divider
+  int lux=(150/Vout-500)/10;
+  return lux;
+}
+
+void loop() {
+
+  if (!client.connected()) {
+    reconnect();
+  } 
+
+  Serial.println("====================================");
+  Serial.println("====Pembacaan dari Node Sensing=====");
+  Serial.println("DHT11 | LDR Sensor | Moisture Sensor");
+
+
+  delay(2000);
+
+  float humidity = dht.readHumidity();
+  float temperature = dht.readTemperature();
+
+  int sensor_tanah= digitalRead(Moisture_soil);
+
+  if (isnan(humidity) || isnan(temperature)|| isnan (int(Light)) || isnan (sensor_tanah)) {
+    Serial.println("gagal dalam pembacaan sensor");
+    return;
+  }
+
+  Serial.print("Humidity: ");
+  Serial.print(humidity);
+  Serial.print(" %");
+  Serial.println("");
+  Serial.print("Temperature: ");
+  Serial.print(temperature);
+  Serial.print(" Celcius ");
+  Serial.println("");
+  Serial.print("Light: ");
+  Serial.print(int(Light(analogRead(0))));
+  Serial.print(" Lux");
+  Serial.println("");
+  Serial.print("Moisture: ");
+  Serial.print(Moisture_soil);
+  Serial.print(" %RH ");
+  Serial.println("");
+
+
+  //convert data ke dalam bentuk JSON
+  String json =
+  "{\"data\":{"
+  "\"humidity\": \"" + String(humidity) + "\","
+  "\"temperature\": \"" + String(temperature) + "\","
+  "\"Light\": \"" + String(int(Light)) + "\","
+  "\"Moisture\": \"" + String(Moisture_soil) + "\"}"
+  "}";
+ 
+  char jsonChar[120];
+  json.toCharArray(jsonChar, json.length()+1);
+ 
+  client.publish("/sensor/cuaca/json", jsonChar); 
+  
+  delay(2000);
+}

@@ -10,7 +10,7 @@ sc =SparkContext(appName = "lalalulu")
 while True:
         #--------------read file data.json---------------
         sqlContext = SQLContext(sc)
-        mongoClient = MongoClient ('192.168.43.234:27018', username='refri', password='1781945~', authSource='skt_db')
+        mongoClient = MongoClient ('192.168.43.234:27018', username='refri', password='******', authSource='skt_db')
         db = mongoClient.skt_db
         col_raw_data = db.raw_data
         col_avg_common = db.avg_common

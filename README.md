@@ -1,5 +1,5 @@
 # project_skt
-Deskripsi Tugas Akhir Sistem Komputasi Terdistribusi
+Deskripsi Tugas Akhir Sistem Komputasi Terdistribusi.
 Terdapat beberapa komponen dari sistem yang akan dibangun antara lain :     
 1. Perangkat Sensor Node         
   a. Perangkat ini berperan untuk mengoleksi data hasil pengukuran sensor untuk kemudian dikirimkan ke cloud lewat komponen sensor-to-cloud gateway menggunakan protokol MQTT. Dalam skema MQTT, perangkat ini berperan sebagai publisher.        

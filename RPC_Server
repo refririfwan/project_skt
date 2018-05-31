@@ -1,0 +1,23 @@
+from flask import Flask, request, jsonify
+import pymongo
+from pymongo import MongoClient
+
+app = Flask("Web App Sensor")
+client = MongoClient('localhost', 27017)
+db = client.dbSensor2
+data = db.sensor
+data_sensor = data.find()
+
+@app.route('/sensor', methods=['GET'])
+def get_all_sensor():
+    output = []
+    for item in data_sensor:
+        output.append({'temp' : item['temp'], 'pressure' : item['pressure'], 'humidity' : item['humidity'], 'temp_min' : item['temp_min'], 'temp_max' : item['temp_max'], 'light' : item['light'], 'id' : item['id'], 'name' : item['name']})
+        print('temp:' + str(item['temp']) + 'pressure:' + str(item['pressure']) + 'humidity:' + str(item['humidity']) + 'temp_min:' + str(item['temp_min']) + 'temp_max:' + str(item['temp_max']) + 'light:' + str(item['light']) + 'id' + str(item['id']) + 'name:' + str(item['name']))
+        return jsonify({'data' : output})
+
+@app.route('/sensor', methods=['GET'])
+def get_sensor():
+    return str()
+
+app.run(port=7777)

@@ -30,4 +30,6 @@ Terdapat beberapa komponen dari sistem yang akan dibangun antara lain :
   b. Aplikasi pengguna mengakses data di cloud menggunakan protokol HTTP berarsitektur Restful Webservice.         
   c. Aplikasi pengguna berupa aplikasi mobile berbasis Android/iOS.
   
-Related Project : https://refririfwan.blogspot.com/2018/05/instalasi-dan-konfigurasi-mongodb-di.html
+Related Project : 
+1. https://refririfwan.blogspot.com/2018/05/instalasi-dan-konfigurasi-mongodb-di.html 
+2. https://refririfwan.blogspot.com/2018/05/melakukan-konfigurasi-subcriber-pada.html

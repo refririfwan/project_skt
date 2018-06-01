@@ -29,3 +29,5 @@ Terdapat beberapa komponen dari sistem yang akan dibangun antara lain :
   a. Komponen ini berperan menampilkan data yang disimpan di server.         
   b. Aplikasi pengguna mengakses data di cloud menggunakan protokol HTTP berarsitektur Restful Webservice.         
   c. Aplikasi pengguna berupa aplikasi mobile berbasis Android/iOS.
+  
+Related Project : https://refririfwan.blogspot.com/2018/05/instalasi-dan-konfigurasi-mongodb-di.html
